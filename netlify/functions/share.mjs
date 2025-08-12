@@ -75,9 +75,12 @@ export default async (request) => {
       { headers: { "content-type": "text/html; charset=utf-8" } });
   }
 
+  // Build absolute origin for server-side fetches
+  const origin = new URL(request.url).origin;
+
   // Direct (unlocked)
   if (row.locked === false) {
-    const dl = await fetch(`/api/download?id=${encodeURIComponent(id)}`);
+    const dl = await fetch(`${origin}/api/download?id=${encodeURIComponent(id)}`);
     const j = await dl.json();
     const body = `
       <div class="preview"><img src="${j.url}" alt="Photo"/></div>
@@ -90,7 +93,7 @@ export default async (request) => {
   }
 
   // Locked (blur + gate)
-  const dl = await fetch(`/api/download?id=${encodeURIComponent(id)}`);
+  const dl = await fetch(`${origin}/api/download?id=${encodeURIComponent(id)}`);
   const j = await dl.json();
   let body = "";
   if (j.url) {
