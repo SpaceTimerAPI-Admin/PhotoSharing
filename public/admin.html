@@ -25,6 +25,7 @@
     label.chk { display: inline-flex; align-items: center; gap: 8px; }
     code { background:#111421; padding:2px 6px; border-radius:6px; }
     #qr { background: #0f0f18; padding: 12px; border-radius: 12px; display: inline-block; }
+    .btns { display:flex; gap:8px; flex-wrap:wrap; }
   </style>
 </head>
 <body>
@@ -50,6 +51,10 @@
       <div id="result" style="display:none;">
         <p>Share URL: <a id="url" href="#" target="_blank" rel="noopener"></a></p>
         <div id="qr"></div>
+        <div class="btns">
+          <button id="copyUrl">Copy share URL</button>
+          <button id="downloadQr">Download QR PNG</button>
+        </div>
         <p class="muted" id="expires"></p>
       </div>
 
@@ -95,6 +100,7 @@
       }
     });
 
+    let lastShareUrl = "";
     document.getElementById('upload').addEventListener('click', async () => {
       const file = document.getElementById('file').files[0];
       const token = document.getElementById('token').value.trim();
@@ -115,15 +121,16 @@
         });
         const out = await readAsJsonOrText(r);
         logd(out);
-        if (out.data && out.data.shareUrl) {
+        if (out.status === 200 && out.data && (out.data.shareUrl || out.data.apiShareUrl)) {
+          lastShareUrl = out.data.shareUrl || out.data.apiShareUrl;
           document.getElementById('prog').value=100;
           show('Uploaded!');
           const a = document.getElementById('url');
-          a.href = out.data.shareUrl;
-          a.textContent = out.data.shareUrl;
+          a.href = lastShareUrl;
+          a.textContent = lastShareUrl;
           document.getElementById('result').style.display = 'block';
           document.getElementById('qr').innerHTML = '';
-          new QRCode(document.getElementById("qr"), { text: out.data.shareUrl, width: 220, height: 220 });
+          const q = new QRCode(document.getElementById("qr"), { text: lastShareUrl, width: 220, height: 220 });
           document.getElementById('expires').textContent = 'Expires at: ' + (out.data.expiresAt || '');
         } else {
           show(out.data?.error || 'Upload failed. See Debug for raw response.', true);
@@ -134,6 +141,21 @@
       } finally {
         setTimeout(()=>{ document.getElementById('prog').style.display='none'; }, 800);
       }
+    });
+
+    document.getElementById('copyUrl').addEventListener('click', async () => {
+      if (!lastShareUrl) return;
+      await navigator.clipboard.writeText(lastShareUrl);
+      show('Share URL copied to clipboard');
+    });
+
+    document.getElementById('downloadQr').addEventListener('click', () => {
+      const canvas = document.querySelector('#qr canvas');
+      if (!canvas) return;
+      const link = document.createElement('a');
+      link.download = 'qr.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
     });
 
     document.getElementById('applyToggle').addEventListener('click', async () => {

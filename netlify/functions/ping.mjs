@@ -1,7 +1,2 @@
 export const config = { path: "/api/ping" };
-
-export default async () => {
-  return new Response(JSON.stringify({ status: 'ok' }), {
-    headers: { 'content-type': 'application/json' }
-  });
-};
+export default async () => new Response(JSON.stringify({ ok: true }), { headers: { "content-type": "application/json" }});

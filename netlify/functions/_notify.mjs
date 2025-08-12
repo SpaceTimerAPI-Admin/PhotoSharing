@@ -1,4 +1,4 @@
-// Simple Discord notifier. Set DISCORD_WEBHOOK_URL in Netlify env vars.
+// Discord notifier (optional). Set DISCORD_WEBHOOK_URL to enable.
 export async function notifyDiscord(text) {
   const url = process.env.DISCORD_WEBHOOK_URL;
   if (!url) return false;
