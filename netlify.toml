@@ -1,13 +1,8 @@
 [build]
-  publish = "public"
-  functions = "netlify/functions"
+publish = "public"
+functions = "netlify/functions"
 
 [[redirects]]
 from = "/share/*"
-to = "/.netlify/functions/share?id=:splat"
+to = "/api/share?id=:splat"
 status = 200
-
-# Daily cleanup at 03:00 UTC (optional; leave if you want auto-expiry cleanup)
-[[scheduled.functions]]
-name = "cleanup"
-cron = "0 3 * * *"
